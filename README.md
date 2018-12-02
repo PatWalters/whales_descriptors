@@ -8,6 +8,7 @@ To install just do this.
 ```
  conda create -c rdkit -n rdkit-whales-env rdkit
  source activate rdkit-whales-env
+ pip install tqdm
  git clone https://github.com/PatWalters/whales_descriptors.git
  cd whales_descriptors
  python setup.py install
