@@ -15,8 +15,9 @@ import numpy as np
 import pandas as ps
 import rdkit.Chem as Chem
 
-import lcm
-import mol_properties
+from . import lcm
+from . import mol_properties
+from tqdm import tqdm
 
 
 def main(suppl, charge_threshold=0, do_charge=True, property_name=''):
@@ -52,42 +53,49 @@ def main(suppl, charge_threshold=0, do_charge=True, property_name=''):
     print(" ")
     print(" ... calculation started.")
     # extract molecules
-    for mol in suppl:  # loops over molecules
+    name_list = []
+    for mol in tqdm(suppl):  # loops over molecules
 
         # display
         index += 1
         if index % 100 == 0:
-            print 'Mol: ' + str(index)
+            print('Mol: ' + str(index))
 
         # check for correct molecule import, throw an error if import/sanitization fail
         mol, err = import_mol(mol)
+        mol_name = mol.GetProp("_Name")
 
         if err == 1:
             x = np.full((33,), -999.0)
             errors += err
-            print ('Molecule no. ' + str(index) + ' not loaded.')
+            print(('Molecule no. ' + str(index) + ' not loaded.'))
         else:
             # coordinates and partial charges (checks for computed charges)
             coords, w, err = mol_properties.get_coordinates_and_prop(mol, property_name, do_charge)
             if err == 0:   # no errors in charge
                 # does descriptors
                 x, lab = do_lcd(coords, w, charge_threshold)
+                name_list.append(mol_name)
             else:
                 x = np.full((33,), -999.0)
                 errors += 1
-                print ('Molecule no. ' + str(index) + ': no computed charges.')
+                print(('Molecule no. ' + str(index) + ': no computed charges.'))
 
         # stores the molecular descriptors
         descriptors[str(index)] = x
 
     # display time
     elapsed = time.time() - t
-    print('Time elapsed ' + str(round(elapsed, 0)) + ' seconds.')
+    print(('Time elapsed ' + str(round(elapsed, 0)) + ' seconds.'))
     descriptors = ps.DataFrame.transpose(descriptors)
+
+    # PW addition 2018-12-02
+    descriptors.insert(0, "Name", name_list)
+    lab = ["Name"]+lab
 
     # display errors
     if errors > 0:
-        print (str(errors) + ' molecules not loaded/calculated')
+        print((str(errors) + ' molecules not loaded/calculated'))
 
     return descriptors, lab
 
@@ -175,7 +183,7 @@ def extract_lcm(data, start=0, end=100, step=10, lab_string=''):
     """
 
     # Calculates percentiles according to the specified settings
-    perc = range(start, end + 1, step)
+    perc = list(range(start, end + 1, step))
     x = np.percentile(data, list(perc), axis=0)
     x = np.concatenate((x[:, 0], x[:, 1], x[:, 2]), axis=0)  # Flattens preserving the ordering
 

@@ -94,12 +94,12 @@ def prepare_mol(mol, property_name, do_charge):
                 list_prop = mol.GetPropsAsDict()
                 string_values = list_prop[property_name]  # extracts the property according to the set name
                 string_values = string_values.split("\n")
-                w = np.asarray(map(float, string_values))
+                w = np.asarray(list(map(float, string_values)))
         else:
             mol = Chem.AddHs(mol)
             n_at = mol.GetNumAtoms()
             w = np.ones((n_at, 1))/n_at
-            w = np.asarray(map(float, w))   # same format as previous calculation
+            w = np.asarray(list(map(float, w)))   # same format as previous calculation
             property_name = 'equal_w'
             err = 0
         # extract properties
