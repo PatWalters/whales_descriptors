@@ -1,3 +1,19 @@
+This is a very minor fork of the WHALES descriptor code.  I made a few small changes. 
+* Ported to Python 3, this was just a matter of running 2to3 on the source files
+* Added the molecule name, mol.GetProp("_Name"), to the output
+* Added a progress bar using tqdm, need to do "pip install tqdm" to run
+
+The original README.md is below, ignore the bit about Python 2.7, this fork is Python 3.
+To install just do this. 
+```
+ conda create -c rdkit -n rdkit-whales-env rdkit
+ source activate rdkit-whales-env
+ git clone https://github.com/PatWalters/whales_descriptors.git
+ cd whales_descriptors
+ python setup.py install
+```
+
+
 # WHALES descriptors
 
 This repository contains all the necessary files to compute Weighted Holistic Atom Localization and Entity Shape (WHALES) descriptors starting from an rdkit supplier file.
